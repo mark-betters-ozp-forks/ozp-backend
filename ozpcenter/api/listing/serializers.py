@@ -371,53 +371,10 @@ class ListingSerializer(serializers.ModelSerializer):
         ret['cert_issues'] = check_failed
         return ret
 
-    @staticmethod
-    def setup_eager_loading(queryset):
-        # select_related foreign keys
-        queryset = queryset.select_related('agency')
-        queryset = queryset.select_related('small_icon')
-        queryset = queryset.select_related('large_icon')
-        queryset = queryset.select_related('banner_icon')
-        queryset = queryset.select_related('large_banner_icon')
-        queryset = queryset.select_related('required_listings')
-
-        # prefetch_related many-to-many relationships
-        queryset = queryset.prefetch_related('agency__icon')
-        queryset = queryset.prefetch_related('screenshots')
-        queryset = queryset.prefetch_related('screenshots__small_image')
-        queryset = queryset.prefetch_related('screenshots__large_image')
-        queryset = queryset.prefetch_related('doc_urls')
-        queryset = queryset.prefetch_related('owners')
-        queryset = queryset.prefetch_related('owners__user')
-        queryset = queryset.prefetch_related('owners__organizations')
-        queryset = queryset.prefetch_related('owners__stewarded_organizations')
-        queryset = queryset.prefetch_related('categories')
-        queryset = queryset.prefetch_related('tags')
-        queryset = queryset.prefetch_related('contacts')
-        queryset = queryset.prefetch_related('contacts__contact_type')
-        queryset = queryset.prefetch_related('listing_type')
-        queryset = queryset.prefetch_related('last_activity')
-        queryset = queryset.prefetch_related('last_activity__change_details')
-        queryset = queryset.prefetch_related('last_activity__author')
-        queryset = queryset.prefetch_related('last_activity__author__organizations')
-        queryset = queryset.prefetch_related('last_activity__author__stewarded_organizations')
-        queryset = queryset.prefetch_related('last_activity__listing')
-        queryset = queryset.prefetch_related('last_activity__listing__contacts')
-        queryset = queryset.prefetch_related('last_activity__listing__owners')
-        queryset = queryset.prefetch_related('last_activity__listing__owners__user')
-        queryset = queryset.prefetch_related('last_activity__listing__categories')
-        queryset = queryset.prefetch_related('last_activity__listing__tags')
-        queryset = queryset.prefetch_related('last_activity__listing__intents')
-        queryset = queryset.prefetch_related('current_rejection')
-        queryset = queryset.prefetch_related('intents')
-        queryset = queryset.prefetch_related('intents__icon')
-        return queryset
-
     def validate(self, data):
         access_control_instance = plugin_manager.get_system_access_control_plugin()
         # logger.debug('inside ListingSerializer.validate', extra={'request':self.context.get('request')})
-        profile = generic_model_access.get_profile(
-            self.context['request'].user.username)
+        profile = generic_model_access.get_profile(self.context['request'].user.username)
 
         # This checks to see if value exist as a key and value is not None
         if not data.get('title'):

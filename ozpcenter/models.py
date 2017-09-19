@@ -97,15 +97,31 @@ class AccessControlImageManager(models.Manager):
     for image queries
     """
 
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('image_type')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlImageManager, self).get_queryset()
+        queryset = self.apply_select_related(queryset)
+        return queryset
+
     def for_user(self, username):
+        """
+        Find more effective way to do exclude
+        SELECT * FROM "ozpcenter_image"
+        """
         # get all images
         objects = super(AccessControlImageManager, self).get_queryset()
+
         # filter out listings by user's access level
         images_to_exclude = []
         for i in objects:
             if not system_has_access_control(username, i.security_marking):
                 images_to_exclude.append(i.id)
         objects = objects.exclude(id__in=images_to_exclude)
+
         return objects
 
 
@@ -293,6 +309,25 @@ class AccessControlApplicationLibraryEntryManager(models.Manager):
     for listing queries
     """
 
+    def apply_select_related(self, queryset):
+        queryset = (queryset.select_related('listing')
+                    .select_related('listing__agency')
+                    .select_related('listing__listing_type')
+                    .select_related('listing__small_icon')
+                    .select_related('listing__large_icon')
+                    .select_related('listing__banner_icon')
+                    .select_related('listing__large_banner_icon')
+                    .select_related('listing__required_listings')
+                    .select_related('listing__last_activity')
+                    .select_related('listing__current_rejection')
+                    .select_related('owner')
+                    .select_related('owner__user'))
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlApplicationLibraryEntryManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
     def for_user(self, username):
         # get all listings
         objects = super(AccessControlApplicationLibraryEntryManager, self).get_queryset()
@@ -313,7 +348,7 @@ class AccessControlApplicationLibraryEntryManager(models.Manager):
         objects = objects.filter(listing__is_enabled=True)
         objects = objects.filter(listing__is_deleted=False)
         objects = objects.exclude(listing__is_private=True, listing__agency__in=exclude_orgs)
-
+        objects = self.apply_select_related(objects)
         # Filter out listings by user's access level
         ids_to_exclude = []
         for i in objects:
@@ -673,6 +708,17 @@ class Review(models.Model):
                                           self.rate, self.text, self.review_parent)
 
 
+class ProfileManager(models.Manager):
+
+    def get_queryset(self):
+        queryset = super(ProfileManager, self).get_queryset()
+        queryset = (queryset.select_related('user')
+                            .prefetch_related('user__groups')
+                            .prefetch_related('organizations')
+                            .prefetch_related('stewarded_organizations'))
+        return queryset
+
+
 class Profile(models.Model):
     """
     A User (user's Profile) on OZP
@@ -741,6 +787,7 @@ class Profile(models.Model):
     subscription_notification_flag = models.BooleanField(default=True)
 
     # TODO: on create, update, or delete, do the same for the related django_user
+    objects = ProfileManager()
 
     def __repr__(self):
         return 'Profile: {0!s}'.format(self.user.username)
@@ -883,7 +930,64 @@ class AccessControlListingManager(models.Manager):
 
     This way there is a single place to implement this 'tailored view' logic
     for listing queries
+
+    To Debug select_related
+    tail -f /var/lib/pgsql/data/pg_log/postgresql-Tue.log -n 0| perl -pe '$_ = "$. $_"'
     """
+
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('agency')
+        queryset = queryset.select_related('agency__icon')
+        queryset = queryset.select_related('listing_type')
+        queryset = queryset.select_related('agency')
+        queryset = queryset.select_related('small_icon')
+        queryset = queryset.select_related('small_icon__image_type')
+        queryset = queryset.select_related('large_icon')
+        queryset = queryset.select_related('large_icon__image_type')
+        queryset = queryset.select_related('banner_icon')
+        queryset = queryset.select_related('banner_icon__image_type')
+        queryset = queryset.select_related('large_banner_icon')
+        queryset = queryset.select_related('large_banner_icon__image_type')
+        queryset = queryset.select_related('required_listings')
+        queryset = queryset.select_related('last_activity')
+        queryset = queryset.select_related('current_rejection')
+
+        # prefetch_related many-to-many relationships
+        queryset = queryset.prefetch_related('screenshots')
+        queryset = queryset.prefetch_related('screenshots__small_image')
+        queryset = queryset.prefetch_related('screenshots__large_image')
+        queryset = queryset.prefetch_related('doc_urls')
+        queryset = queryset.prefetch_related('owners')
+        queryset = queryset.prefetch_related('owners__user')
+
+        queryset = queryset.prefetch_related('owners__organizations')
+        queryset = queryset.prefetch_related('owners__stewarded_organizations')
+        queryset = queryset.prefetch_related('categories')
+        queryset = queryset.prefetch_related('tags')
+        queryset = queryset.prefetch_related('contacts')
+        queryset = queryset.prefetch_related('contacts__contact_type')
+        queryset = queryset.prefetch_related('listing_type')
+        queryset = queryset.prefetch_related('last_activity')
+        queryset = queryset.prefetch_related('last_activity__change_details')
+        queryset = queryset.prefetch_related('last_activity__author')
+        queryset = queryset.prefetch_related('last_activity__author__organizations')
+        queryset = queryset.prefetch_related('last_activity__author__stewarded_organizations')
+        queryset = queryset.prefetch_related('last_activity__listing')
+        queryset = queryset.prefetch_related('last_activity__listing__contacts')
+        queryset = queryset.prefetch_related('last_activity__listing__owners')
+        queryset = queryset.prefetch_related('last_activity__listing__owners__user')
+        queryset = queryset.prefetch_related('last_activity__listing__categories')
+        queryset = queryset.prefetch_related('last_activity__listing__tags')
+        queryset = queryset.prefetch_related('last_activity__listing__intents')
+        queryset = queryset.prefetch_related('current_rejection')
+        queryset = queryset.prefetch_related('intents')
+        queryset = queryset.prefetch_related('intents__icon')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlListingManager, self).get_queryset()
+        return self.apply_select_related(queryset)
 
     def for_user(self, username):
         # get all listings
@@ -902,6 +1006,7 @@ class AccessControlListingManager(models.Manager):
             exclude_orgs = Agency.objects.exclude(title__in=user_orgs)
 
         objects = objects.exclude(is_private=True, agency__in=exclude_orgs)
+        objects = self.apply_select_related(objects)
 
         # Filter out listings by user's access level
         ids_to_exclude = []
@@ -911,6 +1016,7 @@ class AccessControlListingManager(models.Manager):
             if not system_has_access_control(username, i.security_marking):
                 ids_to_exclude.append(i.id)
         objects = objects.exclude(pk__in=ids_to_exclude)
+
         return objects
 
     def for_user_organization_minus_security_markings(self, username):
