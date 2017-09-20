@@ -1,8 +1,18 @@
 
-### 1.0.77 (None)
+### 1.0.78 (None)   
+
+#### Merge Pull Requests  
+* Merge pull request #354 from aml-development/performance ([a60775fa](https://github.com/aml-development/ozp-backend/commit/a60775faaed5868abc3bf320c826564de09fa604))           
+
+### 1.0.77 (2017-09-20)
 
 #### Feature  
-* **doc**:  Wiki created and links added to code base ([8d7d2d9f](https://github.com/aml-development/ozp-backend/commit/8d7d2d9fd0f2da141cb5871e54f06b349b90c0bf))      
+* **doc**:  Wiki created and links added to code base ([8d7d2d9f](https://github.com/aml-development/ozp-backend/commit/8d7d2d9fd0f2da141cb5871e54f06b349b90c0bf))     
+
+#### Refactor 
+* **performance**
+  *  Added select_related ([f6fdc3b1](https://github.com/aml-development/ozp-backend/commit/f6fdc3b1b746c6f268b2bc8eb2c2a7af214db1d7))
+  *  database ([58ba3393](https://github.com/aml-development/ozp-backend/commit/58ba339321c0cf2486a08bca055598410e38b819))     
 
 #### Merge Pull Requests  
 * Merge pull request #343 from aml-development/review_response ([83432379](https://github.com/aml-development/ozp-backend/commit/83432379507f7f6b4b5560100c32a36aa2807488))
