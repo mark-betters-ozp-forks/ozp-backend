@@ -97,15 +97,31 @@ class AccessControlImageManager(models.Manager):
     for image queries
     """
 
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('image_type')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlImageManager, self).get_queryset()
+        queryset = self.apply_select_related(queryset)
+        return queryset
+
     def for_user(self, username):
+        """
+        Find more effective way to do exclude
+        SELECT * FROM "ozpcenter_image"
+        """
         # get all images
         objects = super(AccessControlImageManager, self).get_queryset()
+
         # filter out listings by user's access level
         images_to_exclude = []
         for i in objects:
             if not system_has_access_control(username, i.security_marking):
                 images_to_exclude.append(i.id)
         objects = objects.exclude(id__in=images_to_exclude)
+
         return objects
 
 
@@ -293,6 +309,25 @@ class AccessControlApplicationLibraryEntryManager(models.Manager):
     for listing queries
     """
 
+    def apply_select_related(self, queryset):
+        queryset = queryset.select_related('listing')
+        queryset = queryset.select_related('listing__agency')
+        queryset = queryset.select_related('listing__listing_type')
+        queryset = queryset.select_related('listing__small_icon')
+        queryset = queryset.select_related('listing__large_icon')
+        queryset = queryset.select_related('listing__banner_icon')
+        queryset = queryset.select_related('listing__large_banner_icon')
+        queryset = queryset.select_related('listing__required_listings')
+        queryset = queryset.select_related('listing__last_activity')
+        queryset = queryset.select_related('listing__current_rejection')
+        queryset = queryset.select_related('owner')
+        queryset = queryset.select_related('owner__user')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlApplicationLibraryEntryManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
     def for_user(self, username):
         # get all listings
         objects = super(AccessControlApplicationLibraryEntryManager, self).get_queryset()
@@ -313,7 +348,7 @@ class AccessControlApplicationLibraryEntryManager(models.Manager):
         objects = objects.filter(listing__is_enabled=True)
         objects = objects.filter(listing__is_deleted=False)
         objects = objects.exclude(listing__is_private=True, listing__agency__in=exclude_orgs)
-
+        objects = self.apply_select_related(objects)
         # Filter out listings by user's access level
         ids_to_exclude = []
         for i in objects:
@@ -443,6 +478,22 @@ class ChangeDetail(models.Model):
             self.id, self.field_name, self.old_value, self.new_value)
 
 
+class ContactManager(models.Manager):
+    """
+    Contact Manager
+    """
+
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('contact_type')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(ContactManager, self).get_queryset()
+        queryset = self.apply_select_related(queryset)
+        return queryset
+
+
 class Contact(models.Model):
     """
     A contact for a Listing
@@ -483,6 +534,7 @@ class Contact(models.Model):
     name = models.CharField(max_length=100)
     organization = models.CharField(max_length=100, null=True)
     contact_type = models.ForeignKey('ContactType', related_name='contacts')
+    objects = ContactManager()
 
     def clean(self):
         if not self.secure_phone and not self.unsecure_phone:
@@ -529,6 +581,29 @@ def post_delete_contact_types(sender, instance, **kwargs):
     cache.delete_pattern('metadata-*')
 
 
+class DocUrlManager(models.Manager):
+    """
+    DocUrl Manager
+    """
+
+    def apply_select_related(self, queryset):
+        queryset = queryset.select_related('listing')
+        queryset = queryset.select_related('listing__agency')
+        queryset = queryset.select_related('listing__listing_type')
+        queryset = queryset.select_related('listing__small_icon')
+        queryset = queryset.select_related('listing__large_icon')
+        queryset = queryset.select_related('listing__banner_icon')
+        queryset = queryset.select_related('listing__large_banner_icon')
+        queryset = queryset.select_related('listing__required_listings')
+        queryset = queryset.select_related('listing__last_activity')
+        queryset = queryset.select_related('listing__current_rejection')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(DocUrlManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
+
 class DocUrl(models.Model):
     """
     A documentation link that belongs to a Listing
@@ -548,6 +623,8 @@ class DocUrl(models.Model):
                 code='invalid url')]
     )
     listing = models.ForeignKey('Listing', related_name='doc_urls')
+
+    objects = DocUrlManager()
 
     def __repr__(self):
         return '{0!s}:{1!s}'.format(self.name, self.url)
@@ -610,13 +687,37 @@ class AccessControlReviewManager(models.Manager):
     for review queries
     """
 
+    def apply_select_related(self, queryset):
+        queryset = queryset.select_related('listing')
+        queryset = queryset.select_related('listing__agency')
+        queryset = queryset.select_related('listing__listing_type')
+        queryset = queryset.select_related('listing__small_icon')
+        queryset = queryset.select_related('listing__large_icon')
+        queryset = queryset.select_related('listing__banner_icon')
+        queryset = queryset.select_related('listing__large_banner_icon')
+        queryset = queryset.select_related('listing__required_listings')
+        queryset = queryset.select_related('listing__last_activity')
+        queryset = queryset.select_related('listing__current_rejection')
+        queryset = queryset.select_related('author')
+        queryset = queryset.select_related('author__user')
+
+        queryset = queryset.select_related('review_parent')
+
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlReviewManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
     def for_user(self, username):
         # get all reviews
         all_reviews = super(AccessControlReviewManager, self).get_queryset()
         # get all listings for this user
-        listings = Listing.objects.for_user(username).all()
+        listings = Listing.objects.for_user(username)
+
         # filter out reviews for listings this user cannot see
         filtered_reviews = all_reviews.filter(listing__in=listings)
+
         return filtered_reviews
 
 
@@ -624,7 +725,6 @@ class Review(models.Model):
     """
     A Review made on a Listing
     """
-
     # Self Referencing
     review_parent = models.ForeignKey('Review', null=True, blank=True)
 
@@ -671,6 +771,17 @@ class Review(models.Model):
     def __str__(self):
         return '[{0!s}] rate: [{1:d}] text:[{2!s}] parent: [{3!s}]'.format(self.author.user.username,
                                           self.rate, self.text, self.review_parent)
+
+
+class ProfileManager(models.Manager):
+
+    def get_queryset(self):
+        queryset = super(ProfileManager, self).get_queryset()
+        queryset = queryset.select_related('user')
+        # .prefetch_related('user__groups')
+        # .prefetch_related('organizations')
+        # .prefetch_related('stewarded_organizations')
+        return queryset
 
 
 class Profile(models.Model):
@@ -741,6 +852,7 @@ class Profile(models.Model):
     subscription_notification_flag = models.BooleanField(default=True)
 
     # TODO: on create, update, or delete, do the same for the related django_user
+    objects = ProfileManager()
 
     def __repr__(self):
         return 'Profile: {0!s}'.format(self.user.username)
@@ -883,7 +995,67 @@ class AccessControlListingManager(models.Manager):
 
     This way there is a single place to implement this 'tailored view' logic
     for listing queries
+
+    To Debug select_related
+    tail -f /var/lib/pgsql/data/pg_log/postgresql-Tue.log -n 0| perl -pe '$_ = "$. $_"'
     """
+
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('agency')
+        queryset = queryset.select_related('agency__icon')
+        queryset = queryset.select_related('listing_type')
+        queryset = queryset.select_related('agency')
+        queryset = queryset.select_related('small_icon')
+        queryset = queryset.select_related('small_icon__image_type')
+        queryset = queryset.select_related('large_icon')
+        queryset = queryset.select_related('large_icon__image_type')
+        queryset = queryset.select_related('banner_icon')
+        queryset = queryset.select_related('banner_icon__image_type')
+        queryset = queryset.select_related('large_banner_icon')
+        queryset = queryset.select_related('large_banner_icon__image_type')
+        queryset = queryset.select_related('required_listings')
+        queryset = queryset.select_related('last_activity')
+        queryset = queryset.select_related('current_rejection')
+
+        # prefetch_related many-to-many relationships
+        # prefetch_related causes caches issues.
+        # https://github.com/django/django/blob/fea9cb46aacc73cabac883a806ccb7fdc1f979dd/django/db/models/fields/related_descriptors.py
+        # _remove_prefetched_objects does not work property due to self.field.related_query_name() returning wrong value
+        # queryset = queryset.prefetch_related('screenshots')
+        # queryset = queryset.prefetch_related('screenshots__small_image')
+        # queryset = queryset.prefetch_related('screenshots__large_image')
+        # queryset = queryset.prefetch_related('doc_urls')
+        # queryset = queryset.prefetch_related('owners')
+        # queryset = queryset.prefetch_related('owners__user')
+
+        # queryset = queryset.prefetch_related('owners__organizations')
+        # queryset = queryset.prefetch_related('owners__stewarded_organizations')
+        # queryset = queryset.prefetch_related('categories')
+        # queryset = queryset.prefetch_related('tags')
+        # queryset = queryset.prefetch_related('contacts')
+        # queryset = queryset.prefetch_related('contacts__contact_type')
+        # queryset = queryset.prefetch_related('listing_type')
+        # queryset = queryset.prefetch_related('last_activity')
+        # queryset = queryset.prefetch_related('last_activity__change_details')
+        # queryset = queryset.prefetch_related('last_activity__author')
+        # queryset = queryset.prefetch_related('last_activity__author__organizations')
+        # queryset = queryset.prefetch_related('last_activity__author__stewarded_organizations')
+        # queryset = queryset.prefetch_related('last_activity__listing')
+        # queryset = queryset.prefetch_related('last_activity__listing__contacts')
+        # queryset = queryset.prefetch_related('last_activity__listing__owners')
+        # queryset = queryset.prefetch_related('last_activity__listing__owners__user')
+        # queryset = queryset.prefetch_related('last_activity__listing__categories')
+        # queryset = queryset.prefetch_related('last_activity__listing__tags')
+        # queryset = queryset.prefetch_related('last_activity__listing__intents')
+        # queryset = queryset.prefetch_related('current_rejection')
+        # queryset = queryset.prefetch_related('intents')
+        # queryset = queryset.prefetch_related('intents__icon')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlListingManager, self).get_queryset()
+        return self.apply_select_related(queryset)
 
     def for_user(self, username):
         # get all listings
@@ -902,6 +1074,7 @@ class AccessControlListingManager(models.Manager):
             exclude_orgs = Agency.objects.exclude(title__in=user_orgs)
 
         objects = objects.exclude(is_private=True, agency__in=exclude_orgs)
+        objects = self.apply_select_related(objects)
 
         # Filter out listings by user's access level
         ids_to_exclude = []
@@ -911,6 +1084,7 @@ class AccessControlListingManager(models.Manager):
             if not system_has_access_control(username, i.security_marking):
                 ids_to_exclude.append(i.id)
         objects = objects.exclude(pk__in=ids_to_exclude)
+
         return objects
 
     def for_user_organization_minus_security_markings(self, username):
@@ -1115,6 +1289,15 @@ class AccessControlRecommendationsEntryManager(models.Manager):
     for listing queries
     """
 
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('target_profile')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlRecommendationsEntryManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
     def for_user(self, username):
         # get all entries
         objects = super(AccessControlRecommendationsEntryManager, self).get_queryset()
@@ -1207,15 +1390,23 @@ class AccessControlListingActivityManager(models.Manager):
     for ListingActivity queries
     """
 
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        queryset = queryset.select_related('author')
+        queryset = queryset.select_related('listing')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(AccessControlListingActivityManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
     def for_user(self, username):
         # get all activities
-        all_activities = super(
-            AccessControlListingActivityManager, self).get_queryset()
+        all_activities = super(AccessControlListingActivityManager, self).get_queryset()
         # get all listings for this user
         listings = Listing.objects.for_user(username).all()
         # filter out listing_activities for listings this user cannot see
-        filtered_listing_activities = all_activities.filter(
-            listing__in=listings)
+        filtered_listing_activities = all_activities.filter(listing__in=listings)
         return filtered_listing_activities
 
 
@@ -1293,6 +1484,24 @@ class ListingActivity(models.Model):
         verbose_name_plural = "listing activities"
 
 
+class ScreenshotManager(models.Manager):
+    """
+    Screenshot Manager
+    """
+
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        # Adding select_related cut db calls from 3167 to 2683
+        queryset = queryset.select_related('small_image')
+        queryset = queryset.select_related('large_image')
+        queryset = queryset.select_related('listing')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(ScreenshotManager, self).get_queryset()
+        return self.apply_select_related(queryset)
+
+
 class Screenshot(models.Model):
     """
     A screenshot for a Listing
@@ -1307,6 +1516,7 @@ class Screenshot(models.Model):
     large_image = models.ForeignKey(Image, related_name='screenshot_large')
     listing = models.ForeignKey('Listing', related_name='screenshots')
     description = models.CharField(max_length=160, null=True, blank=True)
+    objects = ScreenshotManager()
 
     def __repr__(self):
         return '{0!s}: {1!s}, {2!s}'.format(self.listing.title, self.large_image.id, self.small_image.id)
@@ -1341,6 +1551,26 @@ def post_save_listing_types(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=ListingType)
 def post_delete_listing_types(sender, instance, **kwargs):
     cache.delete_pattern('metadata-*')
+
+
+class NotificationManager(models.Manager):
+    """
+    Notification Manager
+    """
+
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        # select_related cut down db calls from 717 to 8
+        # TODO; Enable after 0013_notification_fill_migrate has been refactored
+        # queryset = queryset.select_related('author')
+        # queryset = queryset.select_related('author__user')
+        # queryset = queryset.select_related('listing')
+        queryset = queryset.select_related('agency')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(NotificationManager, self).get_queryset()
+        return self.apply_select_related(queryset)
 
 
 class Notification(models.Model):
@@ -1414,6 +1644,8 @@ class Notification(models.Model):
     # Depending on notification_type, it could be listing_id/agency_id/profile_user_id/category_id/tag_id
     entity_id = models.IntegerField(default=None, null=True, blank=True, db_index=True)
 
+    objects = NotificationManager()
+
     @property
     def peer(self):
         if self._peer:
@@ -1467,6 +1699,23 @@ class Notification(models.Model):
         return '{0!s}: {1!s}'.format(self.author.user.username, self.message)
 
 
+class NotificationMailBoxManager(models.Manager):
+    """
+    NotificationMailBox Manager
+    """
+
+    def apply_select_related(self, queryset):
+        # select_related foreign keys
+        # select_related cut down db calls from  to
+        # queryset = queryset.select_related('target_profile')
+        # queryset = queryset.select_related('notification')
+        return queryset
+
+    def get_queryset(self):
+        queryset = super(NotificationMailBox, self).get_queryset()
+        return self.apply_select_related(queryset)
+
+
 class NotificationMailBox(models.Model):
     # Mailbox Profile ID
     target_profile = models.ForeignKey(Profile, related_name='mailbox_profiles')
@@ -1477,6 +1726,8 @@ class NotificationMailBox(models.Model):
     read_status = models.BooleanField(default=False)
     # Acknowledged Flag
     acknowledged_status = models.BooleanField(default=False)
+
+    # objects = NotificationMailBoxManager()
 
     def __repr__(self):
         return '{0!s}: {1!s}'.format(self.target_profile.user.username, self.notification.pk)
