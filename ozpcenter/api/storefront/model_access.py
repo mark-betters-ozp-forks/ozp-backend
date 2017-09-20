@@ -31,8 +31,10 @@ ORDER BY profile_username, role_priority
 import logging
 
 from django.core.urlresolvers import reverse
-from django.db.models.functions import Lower
 from django.db import connection
+from django.db.models import Count
+from django.db.models.functions import Lower
+
 import msgpack
 
 # import ozpcenter.api.listing.serializers as listing_serializers
@@ -648,8 +650,6 @@ def get_storefront(username, pre_fetch=False, section=None):
 def values_query_set_to_dict(vqs):
     return [item for item in vqs]
 
-from django.db.models import Count
-
 
 def get_metadata(username):
     """
@@ -680,13 +680,13 @@ def get_metadata(username):
         agency_listing_count_queryset = agency_listing_count_queryset.values('agency__id',
                                                                         'agency__title',
                                                                         'agency__short_name',
-                                                                        'agency__icon').annotate(count=Count('agency__id')).order_by('agency__short_name')
+                                                                        'agency__icon').annotate(listing_count=Count('agency__id')).order_by('agency__short_name')
 
         data['agencies'] = [{'id': record['agency__id'],
                             'title': record['agency__title'],
                             'short_name': record['agency__short_name'],
                             'icon': record['agency__icon'],
-                            'count': record['count']} for record in agency_listing_count_queryset]
+                            'listing_count': record['listing_count']} for record in agency_listing_count_queryset]
 
         for i in data['intents']:
             # i['icon'] = models.Image.objects.get(id=i['icon']).image_url()
