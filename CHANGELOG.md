@@ -1,4 +1,13 @@
 
+### 1.0.77 (None)
+
+#### Feature  
+* **doc**:  Wiki created and links added to code base ([8d7d2d9f](https://github.com/aml-development/ozp-backend/commit/8d7d2d9fd0f2da141cb5871e54f06b349b90c0bf))      
+
+#### Merge Pull Requests  
+* Merge pull request #343 from aml-development/review_response ([83432379](https://github.com/aml-development/ozp-backend/commit/83432379507f7f6b4b5560100c32a36aa2807488))
+* Merge pull request #351 from aml-development/codedoc ([b4e41e91](https://github.com/aml-development/ozp-backend/commit/b4e41e91bc6d97e1baf6bd8cb859b1260a037347))           
+
 ### 1.0.76 (2017-09-13)           
 
 ### 1.0.75 (2017-09-13)           
@@ -6,6 +15,10 @@
 ### 1.0.74 (2017-09-13)
 
 #### Feature 
+* **review**
+  *  allow multiple review responses but only one original review ([3da0b6c0](https://github.com/aml-development/ozp-backend/commit/3da0b6c0832808710075a7075aa42bd309a81659))
+  *  create created date field for ordering ([a27f339f](https://github.com/aml-development/ozp-backend/commit/a27f339f9f1bd1e05991e79f4316e1ffa77a89d7))
+  *  Reverse Review Responses Order ([90b7556a](https://github.com/aml-development/ozp-backend/commit/90b7556afcb8e184d296eb6b60b5f85220eb1ede))    
 * **title_priority_ut_fix**
   *  Corrected space for Travis ([3ecf5e65](https://github.com/aml-development/ozp-backend/commit/3ecf5e65c3691843f6e801908a456c1f75d85535))
   *  Fixed Unit Tests ([515cf34c](https://github.com/aml-development/ozp-backend/commit/515cf34cc2743e63ca1e3a8216f3a7895642faf4))    
@@ -34,6 +47,15 @@
 ### 1.0.73 (2017-09-06)
 
 #### Feature 
+* **review**
+  *  Added Responses Count in Listings ([ccf91bfc](https://github.com/aml-development/ozp-backend/commit/ccf91bfc1a4acc19fb54727d19c7d1289cda4342))
+  *  Fixed Review Responses Order ([e61d22b0](https://github.com/aml-development/ozp-backend/commit/e61d22b00a686a08762fa2b0b4eb79422a788a62))
+  *  Nested Review Responses ([08a47cd5](https://github.com/aml-development/ozp-backend/commit/08a47cd5e687ac02a9063e6cc6374a474c006ac7))
+  *  Nested Serializer ([5a28869d](https://github.com/aml-development/ozp-backend/commit/5a28869dd16c76d5eacfac6e1452b277bab093a7))
+  *  Add ReviewLimitOffsetPagination and Ordering ([91eda01a](https://github.com/aml-development/ozp-backend/commit/91eda01ac3f5ce430b32abf44c57f2c345e67c36))
+  *  Fixed Syntax ([34cbbbb4](https://github.com/aml-development/ozp-backend/commit/34cbbbb410fd1ae0d89033fe9c08d69c68b28067))
+  *  Fixed Unit Test and functionality ([eb7ec849](https://github.com/aml-development/ozp-backend/commit/eb7ec849baa63daec17b79a5a195ac8810d63168))
+  *  Add Review Responses' ([9032e698](https://github.com/aml-development/ozp-backend/commit/9032e69844c0c77b339dc41b8909012a4d090c4a))    
 * **es_recommend_optimize**
   *  Fix code check issue ([32fa0cf4](https://github.com/aml-development/ozp-backend/commit/32fa0cf4d25bc01f12ef573406ebe2cf2803ba78))
   *  Combined code into one file for maintainability ([e3374160](https://github.com/aml-development/ozp-backend/commit/e337416094838e81cfc5deac47f1c7736b91052e))
@@ -42,6 +64,7 @@
   *  Port changes from PR #344 ([52e9bc01](https://github.com/aml-development/ozp-backend/commit/52e9bc010f2a1d920a27dc298b25b2ace8a19584))       
 
 #### Merge Pull Requests  
+* Merge branch 'master' into review_response ([083d6323](https://github.com/aml-development/ozp-backend/commit/083d6323352866f2652c327b9d48bc75950846ce))
 * Merge pull request #335 from aml-development/refactor_data ([d6cab253](https://github.com/aml-development/ozp-backend/commit/d6cab25339e01f6bd6407efc9f8a623c0cb90123))           
 
 ### 1.0.72 (2017-08-28)
