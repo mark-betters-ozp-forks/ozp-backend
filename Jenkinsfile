@@ -1,28 +1,24 @@
 pipeline {
     agent {
-        //NOTE: This block should be removed.
-        //      Stick with the manual SCPing of archived files,
-        //      so that SIL folks won't need to fiddle with firewalls.
         label 'KZ01_TI-141_OZP_Gateway'
     }
     stages {
         stage ('Checkout Repo') {
             git url: 'http://www.github.com/mark-betters-ozp-forks/ozp-backend.git', branch: 'master'
         }
-        
-        stage ('Make Python Environment') { //NOTE: This stage can likely be deleted, since puppet will be doing this.
+        stage ('Make Python Environment') {
             steps {
                 sh 'mkdir -p python-env'
                 sh 'sudo /usr/local/bin/pyvenv-3.4 python-env'
                 sh 'sudo chown -R jenkins:jenkins python-env'
             }
         }
-        stage ('Install PIP') { //NOTE: This stage can likely be deleted, since puppet will be doing this.
+        stage ('Install PIP') {
             steps {
                 sh '. ./python-env/bin/activate; curl https://bootstrap.pypa.io/get-pip.py | python -'
             }
         }
-        stage ('Install Backend Dependencies') { //NOTE: This stage can likely be deleted, since puppet will be doing this.
+        stage ('Install Backend Dependencies') {
             steps {
                 sh '. ./python-env/bin/activate'
                 sh 'pip install --upgrade pip'
@@ -37,8 +33,8 @@ pipeline {
             steps {
                 sh '. ./python-env/bin/activate'
                 sh 'export PATH=/usr/local/pgsql/bin:$PATH'
-                sh 'python release.py --no-version' //creates tar
-                sh 'mv *.tar.gz backend.tar.gz' //renames tar
+                sh 'python release.py --no-version'
+                sh 'mv *.tar.gz backend.tar.gz'
             }
         }
     }
