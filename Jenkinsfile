@@ -41,6 +41,7 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished executing'
+            echo 'Goodbye'
         }
     }
 }
