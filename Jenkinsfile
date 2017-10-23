@@ -3,7 +3,7 @@ pipeline {
         label 'KZ01_TI-141_OZP_Gateway'
     }
     stages {
-        stage ('Checkout Repo') {
+        stage('Checkout Repo') {
             git url: 'http://www.github.com/mark-betters-ozp-forks/ozp-backend.git', branch: 'master'
         }
         stage('Make Python Environment') {
