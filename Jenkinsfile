@@ -4,7 +4,9 @@ pipeline {
     }
     stages {
         stage('Checkout Repo') {
-            git url: 'http://www.github.com/mark-betters-ozp-forks/ozp-backend.git', branch: 'master'
+            steps {
+                git url: 'http://www.github.com/mark-betters-ozp-forks/ozp-backend.git', branch: 'master'
+            }
         }
         stage('Make Python Environment') {
             steps {
