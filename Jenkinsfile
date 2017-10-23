@@ -6,19 +6,19 @@ pipeline {
         stage ('Checkout Repo') {
             git url: 'http://www.github.com/mark-betters-ozp-forks/ozp-backend.git', branch: 'master'
         }
-        stage ('Make Python Environment') {
+        stage('Make Python Environment') {
             steps {
                 sh 'mkdir -p python-env'
                 sh 'sudo /usr/local/bin/pyvenv-3.4 python-env'
                 sh 'sudo chown -R jenkins:jenkins python-env'
             }
         }
-        stage ('Install PIP') {
+        stage('Install PIP') {
             steps {
                 sh '. ./python-env/bin/activate; curl https://bootstrap.pypa.io/get-pip.py | python -'
             }
         }
-        stage ('Install Backend Dependencies') {
+        stage('Install Backend Dependencies') {
             steps {
                 sh '. ./python-env/bin/activate'
                 sh 'pip install --upgrade pip'
@@ -29,7 +29,7 @@ pipeline {
                 sh 'ldd python-env/lib/python3.4/site-packages/PIL/_imaging.cpython-34m.so'
             }
         }
-        stage ('Build the Release Tarball') {
+        stage('Build the Release Tarball') {
             steps {
                 sh '. ./python-env/bin/activate'
                 sh 'export PATH=/usr/local/pgsql/bin:$PATH'
