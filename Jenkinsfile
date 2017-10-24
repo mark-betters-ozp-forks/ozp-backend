@@ -12,7 +12,6 @@ pipeline {
             steps {
                 sh 'mkdir -p python-env'
                 sh 'sudo /usr/local/bin/pyvenv-3.4 python-env'
-                sh 'sudo chown -R jenkins:jenkins python-env'
             }
         }
         stage('Install PIP') {
