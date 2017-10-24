@@ -16,7 +16,8 @@ pipeline {
         }
         stage('Install PIP') {
             steps {
-                sh '. ./python-env/bin/activate; curl https://bootstrap.pypa.io/get-pip.py'
+                sh '. ./python-env/bin/activate'
+                sh 'curl https://bootstrap.pypa.io/get-pip.py'
                 sh 'sudo python get-pip.py'
             }
         }
