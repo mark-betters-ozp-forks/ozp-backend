@@ -10,7 +10,7 @@ pipeline {
         stage('Install PostgreSQL If Not Installed') {
             
             steps {
-                sh '
+                sh '''
                   if [ ! -f postgresql-${POSTGRES_VERSION}.tar.gz ]; then
 
                     # Ensure required packages are installed
@@ -35,12 +35,12 @@ pipeline {
                     sudo make install
         
                   fi
-                '
+                '''
             }
         }
         stage('Install Python If Not Installed') {
             steps {
-                sh '
+                sh '''
                   if [ ! -f Python-${PYTHON_VERSION}.tgz ]; then
 
                     # Clear workspace
@@ -63,7 +63,7 @@ pipeline {
                     sudo make altinstall
         
                   fi
-                '
+                '''
             }
         }
         stage('Checkout Repo') {
