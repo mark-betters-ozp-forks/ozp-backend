@@ -27,7 +27,7 @@ pipeline {
                 sh 'pip install --upgrade pip'
                 sh 'pip install wheel'
                 sh 'export PATH=/usr/local/pgsql/bin:$PATH'
-                sh 'pip install -e &apos;git+https://github.com/nssbu/django-cas.git#egg=django-cas-client-ozp&apos;' //TODO: Remove "&apos;"?
+                sh 'pip install -e "git+https://github.com/nssbu/django-cas.git#egg=django-cas-client-ozp"'
                 sh 'pip install --no-cache-dir -I -r requirements.txt'
                 sh 'ldd python-env/lib/python3.4/site-packages/PIL/_imaging.cpython-34m.so'
             }
