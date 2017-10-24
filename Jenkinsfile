@@ -20,11 +20,11 @@ pipeline {
             steps {
                 sh '''
                   . ./python-env/bin/activate
-                  pip install --upgrade pip
-                  pip install wheel
+                  sudo $(which pip) install --upgrade pip
+                  sudo $(which pip) install wheel
                   export PATH=/usr/local/pgsql/bin:$PATH
-                  pip install -e "git+https://github.com/nssbu/django-cas.git#egg=django-cas-client-ozp"
-                  pip install --no-cache-dir -I -r requirements.txt
+                  sudo $(which pip) install -e "git+https://github.com/nssbu/django-cas.git#egg=django-cas-client-ozp"
+                  sudo $(which pip) install --no-cache-dir -I -r requirements.txt
                   ldd python-env/lib/python3.4/site-packages/PIL/_imaging.cpython-34m.so
                 '''
             }
@@ -34,7 +34,7 @@ pipeline {
                 sh '''
                   . ./python-env/bin/activate
                   export PATH=/usr/local/pgsql/bin:$PATH
-                  python release.py --no-version
+                  $(which python) release.py --no-version
                   mv *.tar.gz backend.tar.gz
                 '''
             }
