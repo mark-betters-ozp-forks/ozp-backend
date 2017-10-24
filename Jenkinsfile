@@ -29,6 +29,9 @@ pipeline {
 
                     # Make PostgreSQL
                     sudo make install
+                    
+                    #Install PostgreSQL Devel
+                    sudo yum install postgresql-devel
         
                   fi
                 '''
@@ -49,7 +52,7 @@ pipeline {
                     cd ${WORKSPACE}/Python-${PYTHON_VERSION}
 
                     # Configure Python
-                    ./configure --prefix=/usr/local --enable-shared LDFLAGS=&quot;-Wl,-rpath /usr/local/lib&quot;
+                    ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
 
                     # Make python
                     make
@@ -91,7 +94,9 @@ pipeline {
                   . ./python-env/bin/activate
                   export PATH=/usr/local/pgsql/bin:$PATH
                   $(which python) release.py --no-version
+                  # TODO: mv <name of release tarball>.tar.gz backend.tar.gz
                 '''
+                //TODO: Make backend.tar.gz into an artifact???
             }
         }
     }
