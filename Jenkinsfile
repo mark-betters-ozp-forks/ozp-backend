@@ -16,9 +16,6 @@ pipeline {
                     # Ensure required packages are installed
                     sudo yum -y install readline-devel libtermcap-devel
 
-                    # Clear workspace
-                    sudo rm -rf *
-          
                     # Download the PostgreSQL source
                     wget https://ftp.postgresql.org/pub/source/v${POSTGRES_VERSION}/postgresql-${POSTGRES_VERSION}.tar.gz
 
@@ -43,9 +40,6 @@ pipeline {
                 sh '''
                   if [ ! -f Python-${PYTHON_VERSION}.tgz ]; then
 
-                    # Clear workspace
-                    sudo rm -rf *
-                    
                     # Download the Python source
                     wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
 
