@@ -16,15 +16,6 @@ pipeline {
                 '''
             }
         }
-        stage('Install PIP') {
-            steps {
-                sh '''
-                  . ./python-env/bin/activate
-                  wget https://bootstrap.pypa.io/get-pip.py
-                  sudo python get-pip.py
-                '''
-            }
-        }
         stage('Install Backend Dependencies') {
             steps {
                 sh '''
