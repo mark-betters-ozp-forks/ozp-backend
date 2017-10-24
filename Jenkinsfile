@@ -8,7 +8,6 @@ pipeline {
     }
     stages {
         stage('Install PostgreSQL If Not Installed') {
-            
             steps {
                 sh '''
                   if [ ! -f postgresql-${POSTGRES_VERSION}.tar.gz ]; then
@@ -92,7 +91,6 @@ pipeline {
                   . ./python-env/bin/activate
                   export PATH=/usr/local/pgsql/bin:$PATH
                   $(which python) release.py --no-version
-                  mv *.tar.gz backend.tar.gz
                 '''
             }
         }
