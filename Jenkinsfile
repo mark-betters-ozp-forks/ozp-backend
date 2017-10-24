@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'KZ01_TI-141_OZP_Gateway'
+        label 'KZ01_TI-141_OZP_CentOS'
     }
     stages {
         stage('Checkout Repo') {
