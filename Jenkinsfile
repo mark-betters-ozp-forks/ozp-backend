@@ -10,22 +10,24 @@ pipeline {
         }
         stage('Make Python Environment') {
             steps {
-                sh 'mkdir -p python-env'
-                sh 'sudo /usr/local/bin/pyvenv-3.4 python-env'
+                sh '''
+                  mkdir -p python-env
+                  sudo /usr/local/bin/pyvenv-3.4 python-env
+                '''
             }
         }
         stage('Install PIP') {
             steps {
-                sh '
+                sh '''
                   . ./python-env/bin/activate
                   wget https://bootstrap.pypa.io/get-pip.py
                   sudo python get-pip.py
-                '
+                '''
             }
         }
         stage('Install Backend Dependencies') {
             steps {
-                sh '
+                sh '''
                   . ./python-env/bin/activate
                   pip install --upgrade pip
                   pip install wheel
@@ -33,17 +35,17 @@ pipeline {
                   pip install -e "git+https://github.com/nssbu/django-cas.git#egg=django-cas-client-ozp"
                   pip install --no-cache-dir -I -r requirements.txt
                   ldd python-env/lib/python3.4/site-packages/PIL/_imaging.cpython-34m.so
-                '
+                '''
             }
         }
         stage('Build the Release Tarball') {
             steps {
-                sh '
+                sh '''
                   . ./python-env/bin/activate
                   export PATH=/usr/local/pgsql/bin:$PATH
                   python release.py --no-version
                   mv *.tar.gz backend.tar.gz
-                '
+                '''
             }
         }
     }
