@@ -18,6 +18,9 @@ pipeline {
                     #Install PostgreSQL Devel
                     sudo yum -y install postgresql-devel
 
+                    #Create a soft link to pg_config
+                    sudo ln -s /usr/local/pgsql/bin/pg_config /usr/bin/pg_config
+                    
                     # Download the PostgreSQL source
                     wget https://ftp.postgresql.org/pub/source/v${POSTGRES_VERSION}/postgresql-${POSTGRES_VERSION}.tar.gz
 
