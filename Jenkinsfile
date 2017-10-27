@@ -11,9 +11,12 @@ pipeline {
             steps {
                 sh '''
                   if [ ! -f postgresql-${POSTGRES_VERSION}.tar.gz ]; then
-
+                  
                     # Ensure required packages are installed
                     sudo yum -y install readline-devel libtermcap-devel
+                    
+                    #Install PostgreSQL Devel
+                    sudo yum -y install postgresql-devel
 
                     # Download the PostgreSQL source
                     wget https://ftp.postgresql.org/pub/source/v${POSTGRES_VERSION}/postgresql-${POSTGRES_VERSION}.tar.gz
@@ -29,9 +32,6 @@ pipeline {
 
                     # Make PostgreSQL
                     sudo make install
-                    
-                    #Install PostgreSQL Devel
-                    sudo yum -y install postgresql-devel
         
                   fi
                 '''
