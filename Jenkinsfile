@@ -31,7 +31,7 @@ pipeline {
                     sudo make install
                     
                     #Install PostgreSQL Devel
-                    sudo yum install postgresql-devel
+                    sudo yum -y install postgresql-devel
         
                   fi
                 '''
@@ -94,7 +94,7 @@ pipeline {
                   . ./python-env/bin/activate
                   export PATH=/usr/local/pgsql/bin:$PATH
                   $(which python) release.py --no-version
-                  # TODO: mv <name of release tarball>.tar.gz backend.tar.gz
+                  mv backend-*.tar.gz backend.tar.gz
                 '''
                 //TODO: Make backend.tar.gz into an artifact???
             }
