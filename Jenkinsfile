@@ -7,64 +7,6 @@ pipeline {
         PYTHON_VERSION = '3.4.3'
     }
     stages {
-        stage('Install PostgreSQL If Not Installed') {
-            steps {
-                sh '''
-                  if [ ! -f postgresql-${POSTGRES_VERSION}.tar.gz ]; then
-                  
-                    # Ensure required packages are installed
-                    sudo yum -y install readline-devel libtermcap-devel
-                    
-                    #Install PostgreSQL Devel
-                    sudo yum -y install postgresql-devel
-
-                    #Create a soft link to pg_config
-                    sudo ln -s /usr/local/pgsql/bin/pg_config /usr/bin/pg_config
-                    
-                    # Download the PostgreSQL source
-                    wget https://ftp.postgresql.org/pub/source/v${POSTGRES_VERSION}/postgresql-${POSTGRES_VERSION}.tar.gz
-
-                    # Extract archive
-                    tar -xzf postgresql-${POSTGRES_VERSION}.tar.gz
-
-                    # Move into PostgreSQL dir
-                    cd ${WORKSPACE}/postgresql-${POSTGRES_VERSION}
-
-                    # Configure PostgreSQL
-                    ./configure
-
-                    # Make PostgreSQL
-                    sudo make install
-        
-                  fi
-                '''
-            }
-        }
-        stage('Install Python If Not Installed') {
-            steps {
-                sh '''
-                  if [ ! -f Python-${PYTHON_VERSION}.tgz ]; then
-
-                    # Download the Python source
-                    wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
-
-                    # Extract archive
-                    tar -xzf Python-${PYTHON_VERSION}.tgz
-
-                    # Move into python dir
-                    cd ${WORKSPACE}/Python-${PYTHON_VERSION}
-
-                    # Configure Python
-                    ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
-
-                    # Make python
-                    make
-                    sudo make altinstall
-        
-                  fi
-                '''
-            }
-        }
         stage('Checkout Repo') {
             steps {
                 git url: 'http://www.github.com/mark-betters-ozp-forks/ozp-backend.git', branch: 'master'
