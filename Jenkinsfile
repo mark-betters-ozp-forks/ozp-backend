@@ -41,7 +41,11 @@ pipeline {
                   $(which python) release.py --no-version
                   mv backend-*.tar.gz backend.tar.gz
                 '''
-                //TODO: Make backend.tar.gz into an artifact???
+            }
+        }
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'backend.tar.gz'
             }
         }
     }
