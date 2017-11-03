@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^iwc-api/', include('ozpiwc.urls')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
+    url(r'^version/', include('ozpversion.urls')),
 
     # CAS
     url(r'^accounts/login/$', 'cas.views.login', name='login'),
