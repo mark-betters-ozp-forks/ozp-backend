@@ -17,10 +17,16 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import HttpResponse
 
 from ozp.decorators.cas_decorators import redirecting_login_required
 
 from decorator_include import decorator_include
+
+def version(request):
+    #TODO: Implement this function to return the actual OZP version
+    version = 42
+    return HttpResponse(str(version))
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -28,7 +34,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^iwc-api/', include('ozpiwc.urls')),
     url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^version/', include('ozpversion.urls')),
+    url(r'^version/', version),
 
     # CAS
     url(r'^accounts/login/$', 'cas.views.login', name='login'),
