@@ -2,6 +2,7 @@
 """
 import logging
 
+from django.conf import settings
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework import renderers as rf_renderers
@@ -29,7 +30,7 @@ def RootApiView(request):
         return Response('Invalid version requested',
             status=status.HTTP_406_NOT_ACCEPTABLE)
 
-    root_url = request.build_absolute_uri('/')
+    root_url = request.build_absolute_uri('/' + settings.OZP['ROOT_URL'])
     profile = model_access.get_profile(request.user.username)
     data = hal.create_base_structure(request,
         hal.generate_content_type(request.accepted_media_type))

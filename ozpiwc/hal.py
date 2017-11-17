@@ -3,6 +3,7 @@ HAL helpers
 """
 import re
 
+from djangoconf import settings
 import ozpcenter.model_access as model_access
 
 # Constants
@@ -19,7 +20,7 @@ def create_base_structure(request, type='application/json'):
     """
     Creates the initial HAL structure for a given request
     """
-    root_url = request.build_absolute_uri('/')  # flake8: noqa TODO: Is Necessary? - Variable not being used in method
+    root_url = request.build_absolute_uri('/' + settings.OZP['ROOT_URL'])  # flake8: noqa TODO: Is Necessary? - Variable not being used in method
     profile = model_access.get_profile(request.user.username)  # flake8: noqa TODO: Is Necessary? - Variable not being used in method
     data = {
         "_links": {
@@ -60,12 +61,12 @@ def add_hal_structure(data, request, type='application/json'):
 
 
 def get_abs_url_for_profile(request, profile_id):
-    root_url = request.build_absolute_uri('/')
+    root_url = request.build_absolute_uri('/' + settings.OZP['ROOT_URL'])
     return '{0!s}iwc-api/profile/{1!s}/'.format(root_url, profile_id)
 
 
 def get_abs_url_for_iwc(request):
-    root_url = request.build_absolute_uri('/')
+    root_url = request.build_absolute_uri('/' + settings.OZP['ROOT_URL'])
     return '{0!s}iwc-api/'.format(root_url)
 
 
