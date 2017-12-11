@@ -3,7 +3,7 @@ HAL helpers
 """
 import re
 
-from djangoconf import settings
+from django.conf import settings
 import ozpcenter.model_access as model_access
 
 # Constants
