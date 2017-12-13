@@ -16,7 +16,6 @@ import ozpcenter.api.image.model_access as model_access
 import ozpcenter.api.image.serializers as serializers
 from ozpcenter import errors
 import ozpcenter.model_access as generic_model_access
-from ozp.storage import media_storage
 
 # Get an instance of a logger
 logger = logging.getLogger('ozp-center.' + str(__name__))
@@ -139,7 +138,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         image = get_object_or_404(queryset, pk=pk)
-        image_path = str(image.id) + '_' + image.image_type.name + '.' + image.file_extension
+        image_path = model_access.get_image_path(pk)
         # enforce access control
         profile = generic_model_access.get_profile(self.request.user.username)
 
@@ -148,10 +147,10 @@ class ImageViewSet(viewsets.ModelViewSet):
 
         content_type = 'image/' + image.file_extension
         try:
-            with media_storage.open(image_path) as f:
+            with open(image_path, 'rb') as f:
                 return HttpResponse(f.read(), content_type=content_type)
         except IOError:
-            logger.error('No image found for pk {}'.format(pk))
+            logger.error('No image found for pk {0:d}'.format(pk))
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     def destroy(self, request, pk=None):

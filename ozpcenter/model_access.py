@@ -14,13 +14,9 @@ logger = logging.getLogger('ozp-center.' + str(__name__))
 
 def get_profile(username):
     """
-    Get a User's Profile
+    get a user's Profile
 
-    Args:
-        username
-
-    Return:
-        Profile
+    Key: current_profile:<username>
     """
     try:
         return models.Profile.objects.get(user__username=username)

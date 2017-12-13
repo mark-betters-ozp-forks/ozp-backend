@@ -35,8 +35,8 @@ def get_version():
 # This is a hack to disable SSL cert verification
 ssl._create_default_https_context = ssl._create_unverified_context
 
-# TODO: Find a better way to get version
-os.environ['OZP_BACKEND_VERSION'] = get_version()
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ozp.settings')
+os.environ['OZP_BACKEND_VERSION'] = get_version()  # TODO: Find a better way to get version
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ozp.settings")
 
 application = get_wsgi_application()

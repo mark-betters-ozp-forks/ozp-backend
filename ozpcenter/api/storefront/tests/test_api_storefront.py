@@ -1,14 +1,12 @@
 """
 Tests for storefront endpoints
 """
-from django.test import override_settings
 from rest_framework.test import APITestCase
 
 from ozpcenter import model_access as generic_model_access
 from ozpcenter.scripts import sample_data_generator as data_gen
 
 
-@override_settings(ES_ENABLED=False)
 class StorefrontApiTest(APITestCase):
 
     def setUp(self):
@@ -24,8 +22,13 @@ class StorefrontApiTest(APITestCase):
         """
         data_gen.run()
 
-    def test_metadata_authorized(self):
+    def test_metadata(self):
         url = '/api/metadata/'
+        # test unauthorized user
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 401)
+
+        # test authorized user
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
@@ -34,25 +37,20 @@ class StorefrontApiTest(APITestCase):
         self.assertIn('contact_types', response.data)
         self.assertIn('listing_types', response.data)
         self.assertIn('intents', response.data)
-
+        self.assertIn('listing_titles', response.data)
         for i in response.data['agencies']:
             self.assertTrue('listing_count' in i)
 
-    def test_metadata_unauthorized(self):
-        url = '/api/metadata/'
+    def test_storefront(self):
+        url = '/api/storefront/'
+        # test unauthorized user
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 401)
 
-    def test_storefront_authorized(self):
-        url = '/api/storefront/'
+        # test authorized user
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
         response = self.client.get(url, format='json')
         self.assertIn('featured', response.data)
         self.assertIn('recent', response.data)
         self.assertIn('most_popular', response.data)
-
-    def test_storefront_unauthorized(self):
-        url = '/api/storefront/'
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, 401)

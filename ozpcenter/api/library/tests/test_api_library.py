@@ -1,9 +1,6 @@
 """
 Tests for library endpoints (listings in a user's library)
-
-TODO: Figure out better way to test
 """
-from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -14,15 +11,6 @@ from ozpcenter.scripts import sample_data_generator as data_gen
 def _edit_listing(test_case_instance, id, input_data, default_user='bigbrother'):
     """
     Helper Method to modify a listing
-
-    Args:
-        test_case_instance
-        id
-        input_data
-        default_user(optional)
-
-    Return:
-        response
     """
     user = generic_model_access.get_profile(default_user).user
     test_case_instance.client.force_authenticate(user=user)
@@ -37,28 +25,13 @@ def _edit_listing(test_case_instance, id, input_data, default_user='bigbrother')
     # PUT the Modification
     response = test_case_instance.client.put(url, data, format='json')
     test_case_instance.assertEqual(response.status_code, status.HTTP_200_OK)
-    return response
 
 
 def _create_create_bookmark(test_case_instance, username, listing_id, folder_name=None, status_code=200):
-    """
-    Create Bookmark Helper Function
-
-    Args:
-        test_case_instance
-        username
-        listing_id
-        folder_name(optional)
-        status_code
-
-    Returns:
-        response
-    """
     user = generic_model_access.get_profile(username).user
     test_case_instance.client.force_authenticate(user=user)
-
-    data = {'listing': {'id': listing_id}, 'folder': folder_name}
     url = '/api/self/library/'
+    data = {'listing': {'id': listing_id}, 'folder': folder_name}
     response = test_case_instance.client.post(url, data, format='json')
 
     if response:
@@ -72,7 +45,6 @@ def _create_create_bookmark(test_case_instance, username, listing_id, folder_nam
     return response
 
 
-@override_settings(ES_ENABLED=False)
 class LibraryApiTest(APITestCase):
 
     def setUp(self):
@@ -91,11 +63,10 @@ class LibraryApiTest(APITestCase):
     def test_get_library(self):
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/library/'
         response = self.client.get(url, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # print('response.data: %s' % response.data)
 
     def test_create_library(self):
         """
@@ -118,15 +89,15 @@ class LibraryApiTest(APITestCase):
         self.assertEqual(response.data['listing']['id'], 1)
 
     def test_get_library_list(self):
+        """
+        GET /self/library
+        """
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/self/library/'
         response = self.client.get(url, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(10, len(response.data))
-
+        self.assertEqual(2, len(response.data))
         self.assertIn('listing', response.data[0])
         self.assertIn('id', response.data[0]['listing'])
         self.assertIn('title', response.data[0]['listing'])
@@ -134,52 +105,50 @@ class LibraryApiTest(APITestCase):
         self.assertIn('folder', response.data[0])
 
     def test_get_library_self_when_listing_disabled_enabled(self):
+        """
+        GET /self/library
+        """
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/self/library/'
         response = self.client.get(url, format='json')
-
         listing_ids = [record['listing']['id'] for record in response.data]
         first_listing_id = listing_ids[0]  # Should be 2
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual([2, 23, 44, 63, 10, 77, 81, 101, 9, 147], listing_ids, 'Comparing Ids #1')
+        self.assertEqual(listing_ids, [2, 1], 'Comparing Ids #1')
 
         # Get Library for current user after listing was disabled
         _edit_listing(self, first_listing_id, {'is_enabled': False})
 
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/self/library/'
         response = self.client.get(url, format='json')
-
         listing_ids = [record['listing']['id'] for record in response.data]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual([23, 44, 63, 10, 77, 81, 101, 9, 147], listing_ids, 'Comparing Ids #2')
+        self.assertEqual(listing_ids, [1], 'Comparing Ids #2')
 
         # Get Library for current user after listing was Enable
         _edit_listing(self, first_listing_id, {'is_enabled': True})
 
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/self/library/'
         response = self.client.get(url, format='json')
-
         listing_ids = [record['listing']['id'] for record in response.data]
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual([2, 23, 44, 63, 10, 77, 81, 101, 9, 147], listing_ids, 'Comparings Ids #3')
+        self.assertEqual(listing_ids, [2, 1], 'Comparings Ids #3')
 
     def test_get_library_list_listing_type(self):
+        """
+        GET /self/library
+        """
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
-        url = '/api/self/library/?type=Web Application'
+        url = '/api/self/library/?type=web application'
         response = self.client.get(url, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(4, len(response.data))
+        self.assertEqual(2, len(response.data))
         self.assertIn('listing', response.data[0])
         self.assertIn('id', response.data[0]['listing'])
         self.assertIn('title', response.data[0]['listing'])
@@ -187,22 +156,24 @@ class LibraryApiTest(APITestCase):
         self.assertIn('folder', response.data[0])
 
     def test_get_library_list_listing_type_empty(self):
+        """
+        GET /self/library
+        """
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/self/library/?type=widget'
         response = self.client.get(url, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(0, len(response.data))
 
     def test_get_library_pk(self):
+        """
+        GET /self/library/1
+        """
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
-        url = '/api/self/library/2/'
+        url = '/api/self/library/1/'
         response = self.client.get(url, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('listing', response.data)
         self.assertIn('id', response.data['listing'])
@@ -211,23 +182,17 @@ class LibraryApiTest(APITestCase):
         self.assertIn('folder', response.data)
 
     def test_update_library(self):
+        """
+        PUT self/library/update_all
+        """
         user = generic_model_access.get_profile('wsmith').user
         self.client.force_authenticate(user=user)
-
         url = '/api/self/library/'
         response = self.client.get(url, format='json')
-
         put_data = []
-        position_count = 0
-
         for i in response.data:
-            position_count = position_count + 1
-
-            data = {'id': i['id'],
-                    'folder': 'test',
-                    'listing': {'id': i['listing']['id']},
-                    'position': position_count
-                    }
+            data = {'id': i['id'], 'folder': 'test',
+                'listing': {'id': i['listing']['id']}}
             put_data.append(data)
 
         url = '/api/self/library/update_all/'
