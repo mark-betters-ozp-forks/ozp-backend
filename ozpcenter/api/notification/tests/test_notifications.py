@@ -1,19 +1,14 @@
 """
 Notification tests
 """
-from django.test import override_settings
 from django.test import TestCase
 
 # from ozpcenter import models
-# from ozpcenter.models import Notification
 from ozpcenter.scripts import sample_data_generator as data_gen
 # import ozpcenter.api.notification.model_access as model_access
 
-# TODO: Add More Tests
 
-
-@override_settings(ES_ENABLED=False)
-class NotificationTest(TestCase):
+class ListingTest(TestCase):
 
     def setUp(self):
         """
@@ -53,27 +48,4 @@ class NotificationTest(TestCase):
         #   * nothing else
         pass
 
-    def test_get_profile_target_list_system(self):
-        pass
-        # actual_profiles_len = len(model_access.get_profile_target_list(Notification.SYSTEM,
-        #                                      Notification.ALL,
-        #                                      None))
-        #
-        # expected_profiles_len = len(models.Profile.objects.all())
-        #
-        # self.assertEqual(expected_profiles_len, actual_profiles_len)
-
-    def test_get_profile_target_list_agency(self):
-        pass
-
-    def test_get_profile_target_list_listing(self):
-        pass
-
-    def test_get_profile_target_list_listing_owners(self):
-        pass
-
-    def test_get_profile_target_list_listing_org_stewards(self):
-        pass
-
-    def test_get_profile_target_list_peer(self):
-        pass
+    # TODO: Add More Tests

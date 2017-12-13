@@ -15,6 +15,5 @@ urlpatterns = [
     url(r'', include('ozpcenter.api.listing.urls')),
     url(r'', include('ozpcenter.api.notification.urls')),
     url(r'', include('ozpcenter.api.profile.urls')),
-    url(r'', include('ozpcenter.api.storefront.urls')),
-    url(r'', include('ozpcenter.api.subscription.urls'))
+    url(r'', include('ozpcenter.api.storefront.urls'))
 ]

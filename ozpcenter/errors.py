@@ -28,15 +28,7 @@ class InvalidInput(Exception):
     pass
 
 
-class RequestException(Exception):
-    pass
-
-
 class AuthorizationFailure(Exception):
-    pass
-
-
-class ElasticsearchServiceUnavailable(Exception):
     pass
 
 
@@ -61,28 +53,28 @@ def exception_handler(exc, context):
         if isinstance(exc.detail, (list, dict)):
             data = exc.detail
         else:
-            data = {'error': True, 'detail': exc.detail}
+            data = {'detail': exc.detail}
 
         set_rollback()
         return Response(data, status=exc.status_code, headers=headers)
 
     elif isinstance(exc, Http404):
         msg = _('Not found.')
-        data = {'error': True, 'detail': six.text_type(msg)}
+        data = {'detail': six.text_type(msg)}
 
         set_rollback()
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     elif isinstance(exc, ObjectDoesNotExist):
         msg = _('Object Not found.')
-        data = {'error': True, 'detail': six.text_type(msg)}
+        data = {'detail': six.text_type(msg)}
 
         set_rollback()
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     elif isinstance(exc, PermissionDenied):
         msg = _('Permission denied.')
-        data = {'error': True, 'detail': six.text_type(msg)}
+        data = {'detail': six.text_type(msg)}
 
         message = six.text_type(exc)
         if message:
@@ -93,7 +85,7 @@ def exception_handler(exc, context):
 
     elif isinstance(exc, InvalidInput):
         msg = _('User Invalid Input.')
-        data = {'error': True, 'detail': six.text_type(msg)}
+        data = {'detail': six.text_type(msg)}
 
         message = six.text_type(exc)
         if message:
@@ -102,33 +94,19 @@ def exception_handler(exc, context):
         set_rollback()
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-    elif isinstance(exc, RequestException):
-        msg = _(str(exc))
-        data = {'error': True, 'detail': six.text_type(msg)}
+    elif isinstance(exc, ValueError):
+        msg = _('Invalid Input.')
+        data = {'detail': six.text_type(msg)}
 
         set_rollback()
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-    # elif isinstance(exc, ValueError):
-    #     msg = _('Invalid Input.')
-    #     data = {'error': True, 'detail': six.text_type(msg)}
-    #
-    #     set_rollback()
-    #     return Response(data, status=status.HTTP_400_BAD_REQUEST)
-    #
-    # elif isinstance(exc, TypeError):
-    #     msg = _('Invalid Input.')
-    #     data = {'error': True, 'detail': six.text_type(msg)}
-    #
-    #     set_rollback()
-    #     return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
-    elif isinstance(exc, ElasticsearchServiceUnavailable):
-        msg = _(str(exc))
-        data = {'error': True, 'detail': six.text_type(msg)}
+    elif isinstance(exc, TypeError):
+        msg = _('Invalid Input.')
+        data = {'detail': six.text_type(msg)}
 
         set_rollback()
-        return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
     # Note: Unhandled exceptions will raise a 500 error.
     return None

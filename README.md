@@ -84,27 +84,6 @@ Use username `wsmith` password `password` when prompted for authentication info
 There's also the admin interface at `http://localhost:8000/admin`
 (username: `wsmith`, password: `password`)
 
-### Runing Elasticsearch for Search
-ozp/Settings.py file variable needs to be updated    
-ES_ENABLED = True    
-After installing Elasticsearch run ````make reindex_es```` in the ozp-backend folder while inside of your $env     
-
-**Installing and Running Elasticsearch**     
-Elasticsearch 2.4.1 needs to be installed and run 
-https://www.elastic.co/guide/en/elasticsearch/guide/current/running-elasticsearch.html 
-
-The only requirement for installing Elasticsearch is a recent version of Java. Preferably, you should install the latest version of the official Java from www.java.com.    
-
-You can get the Elasticsearch 2.4.1 from https://www.elastic.co/blog/elasticsearch-2-4-1-released.    
-To install Elasticsearch, download and extract the archive file for your platform. For more information, see the Installation topic in the Elasticsearch Reference.
-
-**Tip**    
-When installing Elasticsearch in production, you can choose to use the Debian or RPM packages provided on the downloads page. You can also use the officially supported Puppet module or Chef cookbook.    
-Once you’ve extracted the archive file, Elasticsearch is ready to run. To start it up in the foreground:    
-cd elasticsearch    
-./bin/elasticsearch    
-
-
 ## Releasing
 Run `python release.py` to generate a tarball with Wheels for the application
 and all of its dependencies. See `release.py` for details
@@ -507,7 +486,6 @@ Example trace for a GET Request for getting a user's profile for an authenticate
 * ozpcenter/api/profile/views.py - For GET Request for this route it will call the 'retrieve' method
   * Before allowing user to access the endpoint it will make sure user is authenticated and has the correct role using 'permission_classes = (permissions.IsUser,)'
 
-
 ## Controlling Access
 Anonymous users have no access - all must have a valid username/password (dev)
 or valid certificate (production) to be granted any access
@@ -571,7 +549,8 @@ themselves
         a listing for which they are not the owner and/or not a member of
         the listing's agency)
     * global WRITE access to create/modify/delete reviews (item_comment) for
-        any listing (must respect organization (if private) and access_control)
+        any listing (must respect organization (if private) and access_control
+        )
 * READ access to /self/listing to return listings that current user owns (?)
 
 **Permission Types**
@@ -761,38 +740,6 @@ themselves
 
 </table>
 
-## Sample Users for BasicAuth
-By default, HTTP Basic Authentication is used for login. This can be changed
-to PKI (client certificates) by changing `REST_FRAMEWORK.DEFAULT_AUTHENTICATION_CLASSES` in `settings.py`
-
-Below are usernames that are part of our sample data (defined in
-`ozp-backend/ozpcenter/scripts/sample_data_generator.py`) (password for all users is `password`):
-
-**Admins:**
-- bigbrother (minipax)
-- bigbrother2 (minitrue)
-- khaleesi (miniplen)
-
-**Org Stewards:**
-- wsmith (minitrue, stewarded_orgs: minitrue)
-- julia (minitrue, stewarded_orgs: minitrue, miniluv)
-- obrien (minipax, stewarded_orgs: minipax, miniplenty)
-
-**Users:**
-- aaronson (miniluv)
-- hodor (miniluv - PKI)
-- jones (minitrue)
-- tammy (minitrue - PKI)
-- rutherford (miniplenty)
-- noah (miniplenty - PKI)
-- syme (minipax)
-- abe (minipax - PKI)
-- tparsons (minipax, miniluv)
-- jsnow (minipax, miniluv - PKI)
-- charrington (minipax, miniluv, minitrue)
-- johnson (minipax, miniluv, minitrue - PKI)
-
-
 ## Domain Knowledge
 ### The life of a submitted listing
 Description on how listings get submitted. API endpoint: ````/api/listing````
@@ -819,17 +766,3 @@ Description on how listings get submitted. API endpoint: ````/api/listing````
     * User: Needs Action
     * Org Steward: Returned
     * Admin: Returned
-````
-                           Submitted
- +--------+                Listing     +---------------------+
- |  USER  +------------------------->  |  ORG STEWARD/ADMIN  |
- +---+----+                            +---+----+------------+
-     ^           Rejected Listing          |    |
-     +---------------------+---------------+    |
-                           ^                    |
-                           |          Approved  |
-                Approved   |          Listing   |
-+-----------+   Listing   ++-------+            |
-|Published  | <-----------+  ADMIN | <----------+
-+-----------+             +--------+
-````

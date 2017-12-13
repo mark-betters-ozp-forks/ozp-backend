@@ -52,13 +52,11 @@ class UserLibrarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ApplicationLibraryEntry
-        fields = ('listing', 'folder', 'id', 'position')
+        fields = ('listing', 'folder', 'id')
 
     def validate(self, data):
         """
-        Check for listing id
-        - folder is optional
-        - position is optional
+        Check for listing id (folder is optional)
         """
         if 'listing' not in data:
             raise serializers.ValidationError('No listing provided')
@@ -75,17 +73,9 @@ class UserLibrarySerializer(serializers.ModelSerializer):
 
         if 'id' not in data['listing']:
             raise serializers.ValidationError('No listing id provided')
-
         if 'folder' in data:
             if not data.get('folder'):
                 data['folder'] = None
-
-        if 'position' in data:
-            try:
-                position_value = int(data['position'])
-                data['position'] = position_value
-            except ValueError:
-                raise serializers.ValidationError('Position is not a integer')
 
         return data
 
@@ -93,5 +83,4 @@ class UserLibrarySerializer(serializers.ModelSerializer):
         username = self.context['request'].user.username
         listing_id = validated_data['listing']['id']
         folder_name = validated_data.get('folder')
-        position = validated_data.get('position')
-        return model_access.create_self_user_library_entry(username, listing_id, folder_name, position)
+        return model_access.create_self_user_library_entry(username, listing_id, folder_name)
